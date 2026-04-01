@@ -23,7 +23,9 @@ data class HomeUiState(
     val lastCreatedTasks: List<TaskDto>? = null,
     val lastTranscript: String? = null,
     val error: String? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val showCreateCelebration: Boolean = false,
+    val showDoneCelebration: Boolean = false
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -120,7 +122,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         it.copy(
                             isProcessing = false,
                             lastCreatedTasks = result.tasks,
-                            lastTranscript = null
+                            lastTranscript = null,
+                            showCreateCelebration = result.tasks.isNotEmpty()
                         )
                     }
                     refresh()
@@ -140,9 +143,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun markDone(taskId: String) {
         viewModelScope.launch {
             if (repo.markDone(taskId)) {
+                _uiState.update { it.copy(showDoneCelebration = true) }
                 refresh()
             }
         }
+    }
+
+    fun dismissCreateCelebration() {
+        _uiState.update { it.copy(showCreateCelebration = false) }
+    }
+
+    fun dismissDoneCelebration() {
+        _uiState.update { it.copy(showDoneCelebration = false) }
     }
 
     fun deleteTask(taskId: String) {

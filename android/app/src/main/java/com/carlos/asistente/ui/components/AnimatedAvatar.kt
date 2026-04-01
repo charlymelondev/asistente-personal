@@ -4,7 +4,6 @@ import android.graphics.BitmapFactory
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -14,10 +13,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 enum class AvatarState {
     GREETING,
@@ -32,11 +29,12 @@ enum class AvatarState {
 fun AnimatedAvatar(
     state: AvatarState,
     modifier: Modifier = Modifier,
-    size: Dp = 120.dp
+    size: Dp = 120.dp,
+    stickerAsset: String = "sticker.png"
 ) {
     val context = LocalContext.current
-    val bitmap = remember {
-        context.assets.open("sticker.png").use { stream ->
+    val bitmap = remember(stickerAsset) {
+        context.assets.open(stickerAsset).use { stream ->
             BitmapFactory.decodeStream(stream)?.asImageBitmap()
         }
     }
@@ -45,18 +43,8 @@ fun AnimatedAvatar(
 
     val infiniteTransition = rememberInfiniteTransition(label = "avatar")
 
-    val overlayEmoji = when (state) {
-        AvatarState.GREETING -> "\uD83D\uDC4B"
-        AvatarState.LISTENING -> "\uD83C\uDFA4"
-        AvatarState.THINKING -> "\uD83D\uDCAD"
-        AvatarState.CELEBRATING -> "\uD83C\uDF89"
-        AvatarState.DONE -> "\u2705"
-        AvatarState.RELAXED -> "\uD83D\uDE34"
-    }
-
     when (state) {
         AvatarState.GREETING -> {
-            // Wave / bounce side to side
             val bounce by infiniteTransition.animateFloat(
                 initialValue = 0f, targetValue = -10f,
                 animationSpec = infiniteRepeatable(
@@ -71,14 +59,13 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "tilt"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 translationY = bounce
                 rotationZ = tilt
             })
         }
 
         AvatarState.LISTENING -> {
-            // Pulse like heartbeat + glow
             val pulse by infiniteTransition.animateFloat(
                 initialValue = 1f, targetValue = 1.12f,
                 animationSpec = infiniteRepeatable(
@@ -93,14 +80,13 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "sway"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 scaleX = pulse; scaleY = pulse
                 rotationZ = sway
             })
         }
 
         AvatarState.THINKING -> {
-            // Slow tilt + float
             val tilt by infiniteTransition.animateFloat(
                 initialValue = -4f, targetValue = 4f,
                 animationSpec = infiniteRepeatable(
@@ -115,14 +101,13 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "float"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 rotationZ = tilt
                 translationY = floatY
             })
         }
 
         AvatarState.CELEBRATING -> {
-            // Dance! Wiggle + jump + scale
             val wiggle by infiniteTransition.animateFloat(
                 initialValue = -8f, targetValue = 8f,
                 animationSpec = infiniteRepeatable(
@@ -144,7 +129,7 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "scale"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 rotationZ = wiggle
                 translationY = jump
                 scaleX = scaleUp; scaleY = scaleUp
@@ -152,7 +137,6 @@ fun AnimatedAvatar(
         }
 
         AvatarState.DONE -> {
-            // Happy pop
             val pop by infiniteTransition.animateFloat(
                 initialValue = 1f, targetValue = 1.1f,
                 animationSpec = infiniteRepeatable(
@@ -167,14 +151,13 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "nod"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 scaleX = pop; scaleY = pop
                 rotationZ = nod
             })
         }
 
         AvatarState.RELAXED -> {
-            // Gentle float + slow breathing
             val floatY by infiniteTransition.animateFloat(
                 initialValue = 0f, targetValue = -8f,
                 animationSpec = infiniteRepeatable(
@@ -189,7 +172,7 @@ fun AnimatedAvatar(
                     repeatMode = RepeatMode.Reverse
                 ), label = "breathe"
             )
-            StickerWithEmoji(bitmap, size, overlayEmoji, modifier.graphicsLayer {
+            StickerImage(bitmap, size, modifier.graphicsLayer {
                 translationY = floatY
                 scaleX = breathe; scaleY = breathe
             })
@@ -198,10 +181,9 @@ fun AnimatedAvatar(
 }
 
 @Composable
-private fun StickerWithEmoji(
+private fun StickerImage(
     bitmap: androidx.compose.ui.graphics.ImageBitmap,
     size: Dp,
-    emoji: String,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -213,16 +195,6 @@ private fun StickerWithEmoji(
             contentDescription = "Sticker",
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
-        )
-
-        // Emoji badge top-right
-        Text(
-            text = emoji,
-            fontSize = (size.value * 0.25f).sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 4.dp, y = (-4).dp)
         )
     }
 }

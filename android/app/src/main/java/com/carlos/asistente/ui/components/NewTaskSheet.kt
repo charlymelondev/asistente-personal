@@ -19,8 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.carlos.asistente.data.audio.SpeechRecognizerHelper
 import com.carlos.asistente.ui.theme.CoralAccent
 import com.carlos.asistente.ui.theme.NavyDeep
 import com.carlos.asistente.ui.theme.NavyLight
@@ -28,17 +30,39 @@ import com.carlos.asistente.ui.theme.NavyLight
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewTaskSheet(
-    isRecording: Boolean,
     isProcessing: Boolean,
-    onStartRecording: () -> Unit,
-    onStopRecording: () -> Unit,
     onSendText: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var text by remember { mutableStateOf("") }
+    var isListening by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val speechHelper = remember { SpeechRecognizerHelper(context) }
+
+    DisposableEffect(Unit) {
+        onDispose { speechHelper.destroy() }
+    }
+
+    fun startSpeechRecognition() {
+        speechHelper.startListening(
+            onResult = { result ->
+                // Partial and final results both update the text field for live feedback;
+                // the user reviews and taps "Crear tarea" themselves.
+                text = result
+            },
+            onError = { error ->
+                Log.w("NewTaskSheet", "Speech error: $error")
+                isListening = false
+            },
+            onListening = { listening ->
+                isListening = listening
+            }
+        )
+    }
 
     ModalBottomSheet(
-        onDismissRequest = { if (!isRecording && !isProcessing) onDismiss() },
+        onDismissRequest = { if (!isListening && !isProcessing) onDismiss() },
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp
@@ -50,7 +74,6 @@ fun NewTaskSheet(
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Title
             Text(
                 text = "Nueva tarea",
                 style = MaterialTheme.typography.titleLarge,
@@ -59,20 +82,18 @@ fun NewTaskSheet(
                 modifier = Modifier.padding(bottom = 28.dp)
             )
 
-            // Microphone section
             if (isProcessing) {
                 ProcessingIndicator()
             } else {
                 MicButton(
-                    isRecording = isRecording,
-                    onStartRecording = onStartRecording,
-                    onStopRecording = onStopRecording
+                    isListening = isListening,
+                    onStartListening = { startSpeechRecognition() },
+                    onStopListening = { speechHelper.stopListening() }
                 )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Divider
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -89,7 +110,6 @@ fun NewTaskSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Text input
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -103,7 +123,7 @@ fun NewTaskSheet(
                 },
                 minLines = 2,
                 maxLines = 4,
-                enabled = !isRecording && !isProcessing,
+                enabled = !isListening && !isProcessing,
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = NavyDeep,
@@ -113,7 +133,6 @@ fun NewTaskSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Send button with gradient
             Button(
                 onClick = {
                     Log.d("NewTaskSheet", "Button clicked! text='$text'")
@@ -125,7 +144,7 @@ fun NewTaskSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                enabled = text.isNotBlank() && !isRecording && !isProcessing,
+                enabled = text.isNotBlank() && !isListening && !isProcessing,
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
@@ -138,7 +157,7 @@ fun NewTaskSheet(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(14.dp))
                         .background(
-                            if (text.isNotBlank() && !isRecording && !isProcessing) {
+                            if (text.isNotBlank() && !isListening && !isProcessing) {
                                 Brush.linearGradient(listOf(NavyDeep, NavyLight))
                             } else {
                                 Brush.linearGradient(
@@ -175,16 +194,15 @@ fun NewTaskSheet(
 
 @Composable
 private fun MicButton(
-    isRecording: Boolean,
-    onStartRecording: () -> Unit,
-    onStopRecording: () -> Unit
+    isListening: Boolean,
+    onStartListening: () -> Unit,
+    onStopListening: () -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "micPulse")
 
-    // Pulse ring when recording
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = if (isRecording) 1.5f else 1f,
+        targetValue = if (isListening) 1.5f else 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(800, easing = EaseInOut),
             repeatMode = RepeatMode.Reverse
@@ -193,7 +211,7 @@ private fun MicButton(
     )
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
-        targetValue = if (isRecording) 0f else 0.4f,
+        targetValue = if (isListening) 0f else 0.4f,
         animationSpec = infiniteRepeatable(
             animation = tween(800, easing = EaseInOut),
             repeatMode = RepeatMode.Reverse
@@ -202,14 +220,13 @@ private fun MicButton(
     )
 
     val micColor by animateColorAsState(
-        targetValue = if (isRecording) MaterialTheme.colorScheme.error else CoralAccent,
+        targetValue = if (isListening) MaterialTheme.colorScheme.error else CoralAccent,
         label = "micColor"
     )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(contentAlignment = Alignment.Center) {
-            // Pulse ring
-            if (isRecording) {
+            if (isListening) {
                 Box(
                     modifier = Modifier
                         .size(96.dp)
@@ -219,9 +236,8 @@ private fun MicButton(
                 )
             }
 
-            // Main mic button
             FloatingActionButton(
-                onClick = { if (isRecording) onStopRecording() else onStartRecording() },
+                onClick = { if (isListening) onStopListening() else onStartListening() },
                 containerColor = micColor,
                 contentColor = Color.White,
                 shape = CircleShape,
@@ -229,8 +245,8 @@ private fun MicButton(
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
                 Icon(
-                    imageVector = if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
-                    contentDescription = if (isRecording) "Parar grabación" else "Grabar audio",
+                    imageVector = if (isListening) Icons.Default.Stop else Icons.Default.Mic,
+                    contentDescription = if (isListening) "Parar escucha" else "Hablar",
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -239,9 +255,9 @@ private fun MicButton(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = if (isRecording) "Grabando... pulsa para parar" else "Pulsa para hablar",
+            text = if (isListening) "Escuchando..." else "Pulsa para hablar",
             style = MaterialTheme.typography.bodySmall,
-            color = if (isRecording) MaterialTheme.colorScheme.error
+            color = if (isListening) MaterialTheme.colorScheme.error
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

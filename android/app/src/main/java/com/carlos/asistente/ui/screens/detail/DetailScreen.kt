@@ -3,6 +3,7 @@ package com.carlos.asistente.ui.screens.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -12,9 +13,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.carlos.asistente.ui.components.CategoryChip
+import com.carlos.asistente.data.remote.dto.UpdateTaskRequest
 import com.carlos.asistente.ui.components.PriorityBadge
 import com.carlos.asistente.ui.components.formatDate
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +38,7 @@ fun DetailScreen(
     }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -110,13 +115,25 @@ fun DetailScreen(
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
-                        CategoryChip(category = task.category)
                         PriorityBadge(priority = task.priority)
                     }
 
                     // Date & Time
                     if (task.due_date != null) {
                         DetailRow("Fecha", formatDate(task.due_date, task.due_time))
+                    }
+
+                    // Assign / change date button
+                    OutlinedButton(
+                        onClick = { showDatePicker = true }
+                    ) {
+                        Icon(
+                            Icons.Default.CalendarMonth,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(if (task.due_date != null) "Cambiar fecha" else "Asignar fecha")
                     }
 
                     // Description
@@ -133,6 +150,32 @@ fun DetailScreen(
                     DetailRow("Creada", task.created_at.substring(0, 16).replace("T", " "))
                 }
             }
+        }
+    }
+
+    // Date picker dialog
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val date = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.of("Europe/Madrid"))
+                                .format(DateTimeFormatter.ISO_LOCAL_DATE)
+                            viewModel.updateTask(UpdateTaskRequest(due_date = date))
+                        }
+                        showDatePicker = false
+                    }
+                ) { Text("Aceptar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 

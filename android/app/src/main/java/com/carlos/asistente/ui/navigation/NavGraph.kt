@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,17 +19,15 @@ import androidx.navigation.navArgument
 import com.carlos.asistente.ui.screens.agenda.AgendaScreen
 import com.carlos.asistente.ui.screens.detail.DetailScreen
 import com.carlos.asistente.ui.screens.home.HomeScreen
-import com.carlos.asistente.ui.screens.inbox.InboxScreen
 import com.carlos.asistente.ui.screens.tasks.TasksScreen
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     data object Home : Screen("home", "Inicio", Icons.Default.Home)
-    data object Inbox : Screen("inbox", "Buzón", Icons.Default.Inbox)
     data object Agenda : Screen("agenda", "Agenda", Icons.Default.CalendarMonth)
     data object Tasks : Screen("tasks", "Tareas", Icons.Default.List)
 }
 
-val bottomNavItems = listOf(Screen.Home, Screen.Inbox, Screen.Agenda, Screen.Tasks)
+val bottomNavItems = listOf(Screen.Home, Screen.Agenda, Screen.Tasks)
 
 @Composable
 fun NavGraph() {
@@ -72,14 +69,6 @@ fun NavGraph() {
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
-                    onTaskClick = { taskId ->
-                        navController.navigate("detail/$taskId")
-                    }
-                )
-            }
-
-            composable(Screen.Inbox.route) {
-                InboxScreen(
                     onTaskClick = { taskId ->
                         navController.navigate("detail/$taskId")
                     }

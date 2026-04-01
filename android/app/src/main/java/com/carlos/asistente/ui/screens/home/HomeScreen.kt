@@ -1,9 +1,5 @@
 package com.carlos.asistente.ui.screens.home
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -29,15 +25,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlos.asistente.ui.components.AnimatedAvatar
 import com.carlos.asistente.ui.components.AvatarState
+import com.carlos.asistente.ui.components.CelebrationManager
 import com.carlos.asistente.ui.components.NewTaskSheet
 import com.carlos.asistente.ui.components.TaskCard
 import com.carlos.asistente.ui.theme.*
@@ -49,21 +44,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     var showNewTask by remember { mutableStateOf(false) }
-    var hasAudioPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
-                    == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasAudioPermission = granted
-        if (granted) viewModel.startRecording()
-    }
 
     LaunchedEffect(state.lastCreatedTasks) {
         if (state.lastCreatedTasks != null) {
@@ -72,7 +53,6 @@ fun HomeScreen(
     }
 
     val avatarState = when {
-        state.isRecording -> AvatarState.LISTENING
         state.isProcessing -> AvatarState.THINKING
         state.lastCreatedTasks != null -> AvatarState.CELEBRATING
         state.todayTasks.isEmpty() && state.overdueTasks.isEmpty() && !state.isLoading -> AvatarState.RELAXED
@@ -135,17 +115,7 @@ fun HomeScreen(
                     }
                 }
 
-                // === Status banners (recording / processing / result) ===
-                if (state.isRecording) {
-                    item {
-                        StatusBanner(
-                            color = MaterialTheme.colorScheme.errorContainer,
-                            onColor = MaterialTheme.colorScheme.onErrorContainer,
-                            text = "Escuchando... Pulsa el botón para parar"
-                        )
-                    }
-                }
-
+                // === Status banners (processing / result) ===
                 if (state.isProcessing) {
                     item {
                         StatusBanner(
@@ -247,20 +217,18 @@ fun HomeScreen(
 
     if (showNewTask) {
         NewTaskSheet(
-            isRecording = state.isRecording,
             isProcessing = state.isProcessing,
-            onStartRecording = {
-                if (hasAudioPermission) {
-                    viewModel.startRecording()
-                } else {
-                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            },
-            onStopRecording = { viewModel.stopRecordingAndSend() },
             onSendText = { text -> viewModel.sendText(text) },
             onDismiss = { showNewTask = false }
         )
     }
+
+    CelebrationManager(
+        showCreateCelebration = state.showCreateCelebration,
+        showDoneCelebration = state.showDoneCelebration,
+        onDismissCreate = { viewModel.dismissCreateCelebration() },
+        onDismissDone = { viewModel.dismissDoneCelebration() }
+    )
 }
 
 // ─── Composables auxiliares ──────────────────────────────────────────────────
@@ -287,10 +255,16 @@ private fun GreetingCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Hola, Carlos",
+                    text = "Hola Papí",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "¿En qué puedo ayudarte hoy?",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnNavySecondary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -306,6 +280,7 @@ private fun GreetingCard(
 
             AnimatedAvatar(
                 state = avatarState,
+                stickerAsset = "sticker_create.png",
                 size = 80.dp
             )
         }
@@ -331,14 +306,7 @@ private fun SummaryStatsRow(
             tint = SuccessGreen,
             modifier = Modifier.weight(1f)
         )
-        SummaryCard(
-            label = "Buzón",
-            count = inboxCount,
-            icon = Icons.Default.Inbox,
-            tint = CoralAccent,
-            modifier = Modifier.weight(1f)
-        )
-        SummaryCard(
+SummaryCard(
             label = "Vencidas",
             count = overdueCount,
             icon = Icons.Default.Warning,
@@ -459,6 +427,7 @@ private fun EmptyTodayState(
     ) {
         AnimatedAvatar(
             state = avatarState,
+            stickerAsset = "sticker_create.png",
             size = 90.dp
         )
         Spacer(modifier = Modifier.height(12.dp))

@@ -19,7 +19,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -29,24 +28,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlos.asistente.ui.components.AnimatedAvatar
 import com.carlos.asistente.ui.components.AvatarState
 import com.carlos.asistente.ui.components.TaskCard
-import com.carlos.asistente.ui.components.getCategoryColor
 import com.carlos.asistente.ui.theme.NavyDeep
-
-private val CATEGORIES = listOf(
-    null to "Todas",
-    "gestiones" to "Gestiones",
-    "llamadas" to "Llamadas",
-    "pagos" to "Pagos",
-    "compras" to "Compras",
-    "trabajo" to "Trabajo",
-    "personal" to "Personal",
-    "salud" to "Salud"
-)
 
 private val STATUSES = listOf(
     "pending" to "Pendientes",
-    "done" to "Hechas",
-    "all" to "Todas"
+    "done" to "Hechas"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,27 +91,6 @@ fun TasksScreen(
                             label = label,
                             selected = state.selectedStatus == value,
                             onClick = { viewModel.setStatusFilter(value) }
-                        )
-                    }
-                }
-            }
-
-            // Category filter chips
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CATEGORIES.forEach { (value, label) ->
-                        CategoryFilterChip(
-                            label = label,
-                            category = value,
-                            selected = state.selectedCategory == value,
-                            onClick = { viewModel.setCategoryFilter(value) }
                         )
                     }
                 }
@@ -204,39 +169,3 @@ private fun StatusFilterChip(
     }
 }
 
-@Composable
-private fun CategoryFilterChip(
-    label: String,
-    category: String?,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    val categoryColor = if (category != null) getCategoryColor(category) else NavyDeep
-
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = if (selected) categoryColor else MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = if (selected) Modifier.shadow(2.dp, RoundedCornerShape(20.dp)) else Modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
-        ) {
-            if (category != null && !selected) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(categoryColor)
-                )
-            }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-    }
-}

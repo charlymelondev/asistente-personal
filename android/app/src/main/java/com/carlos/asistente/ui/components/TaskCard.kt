@@ -37,7 +37,6 @@ fun TaskCard(
     modifier: Modifier = Modifier
 ) {
     val isDone = task.status == "done"
-    val categoryColor = getCategoryColor(task.category)
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -66,7 +65,6 @@ fun TaskCard(
             TaskCardContent(
                 task = task,
                 isDone = isDone,
-                categoryColor = categoryColor,
                 onClick = onClick
             )
         }
@@ -127,7 +125,6 @@ private fun SwipeBackground(dismissState: SwipeToDismissBoxState) {
 private fun TaskCardContent(
     task: TaskDto,
     isDone: Boolean,
-    categoryColor: Color,
     onClick: () -> Unit
 ) {
     Card(
@@ -142,21 +139,9 @@ private fun TaskCardContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp, horizontal = 0.dp),
+                .padding(vertical = 14.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category color strip on the left
-            Box(
-                modifier = Modifier
-                    .padding(start = 14.dp)
-                    .width(4.dp)
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(categoryColor)
-            )
-
-            Spacer(modifier = Modifier.width(14.dp))
-
             // Main content
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -192,9 +177,6 @@ private fun TaskCardContent(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Category chip
-                    CategoryChip(category = task.category, color = categoryColor)
-
                     // Priority badge (high only — urgent shown as dot above)
                     if (task.priority == "high") {
                         PriorityBadge(priority = task.priority)
