@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Ground/Surface -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M10,85 L110,85 L110,90 Q60,95 10,90 Z"/>
+
+    <!-- Body (leaning back) -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M35,82 Q40,68 70,66 Q85,68 85,82 L85,95 L35,95 Z"/>
+
+    <!-- Neck -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M55,63 L70,63 L68,68 L57,68 Z"/>
+
+    <!-- Head (tilted back) -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M62,35 m-24,0 a24,26 0,1 1,48,0 a24,26 0,1 1,-48,0"/>
+
+    <!-- Hair -->
+    <path
+        android:fillColor="#8B6914"
+        android:pathData="M38,35 Q38,13 62,11 Q86,13 86,35 Q84,20 62,18 Q40,20 38,35"/>
+
+    <!-- Left eye (closed, relaxed) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#4A4A4A"
+        android:strokeWidth="2"
+        android:pathData="M48,37 Q52,34 56,37"/>
+
+    <!-- Right eye (closed, relaxed) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#4A4A4A"
+        android:strokeWidth="2"
+        android:pathData="M66,37 Q70,34 74,37"/>
+
+    <!-- Peaceful smile -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#D4845A"
+        android:strokeWidth="2"
+        android:pathData="M52,48 Q62,55 72,48"/>
+
+    <!-- Left arm (relaxed behind head) -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M35,78 Q28,60 35,42 L40,44 Q34,60 40,76 Z"/>
+
+    <!-- Left hand behind head -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M34,40 Q32,35 38,34 L42,38 L38,42 Z"/>
+
+    <!-- Right arm relaxed -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M82,78 Q88,62 82,45 L78,47 Q84,62 78,76 Z"/>
+
+    <!-- Right hand behind head -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M81,43 Q79,38 84,36 L88,40 L84,44 Z"/>
+
+    <!-- Z z z (sleeping/relaxed) -->
+    <path
+        android:fillColor="#90CAF9"
+        android:pathData="M92,22 L100,22 L92,30 L100,30"/>
+    <path
+        android:fillColor="#90CAF9"
+        android:pathData="M100,12 L106,12 L100,18 L106,18"/>
+    <path
+        android:fillColor="#64B5F6"
+        android:pathData="M106,4 L110,4 L106,9 L110,9"/>
+</vector>

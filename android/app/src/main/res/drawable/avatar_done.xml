@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Body -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M30,95 Q30,80 60,78 Q90,80 90,95 L90,120 L30,120 Z"/>
+
+    <!-- Neck -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M52,75 L68,75 L66,82 L54,82 Z"/>
+
+    <!-- Head -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M60,38 m-25,0 a25,27 0,1 1,50,0 a25,27 0,1 1,-50,0"/>
+
+    <!-- Hair -->
+    <path
+        android:fillColor="#8B6914"
+        android:pathData="M35,38 Q35,15 60,13 Q85,15 85,38 Q83,22 60,20 Q37,22 35,38"/>
+
+    <!-- Left eye (wink - closed) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#4A4A4A"
+        android:strokeWidth="2.5"
+        android:pathData="M44,40 Q48,36 52,40"/>
+
+    <!-- Right eye (open) -->
+    <path
+        android:fillColor="#4A4A4A"
+        android:pathData="M72,40 m-3,0 a3,3.5 0,1 1,6,0 a3,3.5 0,1 1,-6,0"/>
+
+    <!-- Smile -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#D4845A"
+        android:strokeWidth="2"
+        android:pathData="M50,52 Q60,60 70,52"/>
+
+    <!-- Left eyebrow -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8B6914"
+        android:strokeWidth="2"
+        android:pathData="M43,34 Q48,30 53,34"/>
+
+    <!-- Right eyebrow -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8B6914"
+        android:strokeWidth="2"
+        android:pathData="M67,34 Q72,30 77,34"/>
+
+    <!-- Thumbs up hand -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M96,48 L96,35 Q96,30 100,30 Q104,30 104,35 L104,48 L108,48 Q108,52 104,52 L96,52 Z"/>
+
+    <!-- Thumb -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M96,48 L92,45 Q90,42 93,40 L98,44 L96,48"/>
+
+    <!-- Arm -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M88,85 Q92,68 98,55 L104,55 Q96,70 92,85 Z"/>
+
+    <!-- Green check circle -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M18,20 m-14,0 a14,14 0,1 1,28,0 a14,14 0,1 1,-28,0"/>
+
+    <!-- Check mark -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M10,20 L16,26 L26,14"/>
+</vector>

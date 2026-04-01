@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Body -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M30,95 Q30,80 60,78 Q90,80 90,95 L90,120 L30,120 Z"/>
+
+    <!-- Neck -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M52,75 L68,75 L66,82 L54,82 Z"/>
+
+    <!-- Head -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M60,38 m-25,0 a25,27 0,1 1,50,0 a25,27 0,1 1,-50,0"/>
+
+    <!-- Hair -->
+    <path
+        android:fillColor="#8B6914"
+        android:pathData="M35,38 Q35,15 60,13 Q85,15 85,38 Q83,22 60,20 Q37,22 35,38"/>
+
+    <!-- Left eye (focused) -->
+    <path
+        android:fillColor="#4A4A4A"
+        android:pathData="M48,40 m-2.5,0 a2.5,3 0,1 1,5,0 a2.5,3 0,1 1,-5,0"/>
+
+    <!-- Right eye (focused) -->
+    <path
+        android:fillColor="#4A4A4A"
+        android:pathData="M72,40 m-2.5,0 a2.5,3 0,1 1,5,0 a2.5,3 0,1 1,-5,0"/>
+
+    <!-- Mouth (slightly open, listening) -->
+    <path
+        android:fillColor="#D4845A"
+        android:pathData="M55,53 a5,4 0,1 0,10,0 a5,4 0,1 0,-10,0"/>
+
+    <!-- Left eyebrow (raised) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8B6914"
+        android:strokeWidth="2"
+        android:pathData="M43,32 Q48,28 53,32"/>
+
+    <!-- Right eyebrow (raised) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8B6914"
+        android:strokeWidth="2"
+        android:pathData="M67,32 Q72,28 77,32"/>
+
+    <!-- Hand cupping ear -->
+    <path
+        android:fillColor="#F5D0B0"
+        android:pathData="M88,32 Q92,28 94,32 L94,45 Q92,48 88,45 Z"/>
+
+    <!-- Arm to ear -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M88,82 Q90,60 89,45 L85,45 Q86,60 85,80 Z"/>
+
+    <!-- Sound wave 1 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#EF5350"
+        android:strokeWidth="2"
+        android:pathData="M15,35 Q10,45 15,55"/>
+
+    <!-- Sound wave 2 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#EF5350"
+        android:strokeWidth="2"
+        android:pathData="M8,30 Q1,45 8,60"/>
+
+    <!-- Sound wave 3 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#EF5350"
+        android:strokeWidth="1.5"
+        android:pathData="M1,25 Q-7,45 1,65"/>
+</vector>
