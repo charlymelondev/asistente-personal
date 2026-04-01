@@ -280,7 +280,7 @@ private fun GreetingCard(
 
             AnimatedAvatar(
                 state = avatarState,
-                stickerAsset = "sticker_create.png",
+                stickerAsset = "sticker.png",
                 size = 80.dp
             )
         }
@@ -427,7 +427,7 @@ private fun EmptyTodayState(
     ) {
         AnimatedAvatar(
             state = avatarState,
-            stickerAsset = "sticker_create.png",
+            stickerAsset = "sticker.png",
             size = 90.dp
         )
         Spacer(modifier = Modifier.height(12.dp))
