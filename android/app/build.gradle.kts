@@ -17,8 +17,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        // Backend URL — change for production
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:3001/\"")
+        // Backend URL
+        buildConfigField("String", "BASE_URL", "\"https://asistente-backend-ui81.onrender.com/\"")
         buildConfigField("String", "API_KEY", "\"carlos-asistente-2026\"")
     }
 
