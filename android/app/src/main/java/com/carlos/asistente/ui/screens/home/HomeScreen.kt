@@ -218,11 +218,15 @@ fun HomeScreen(
     if (showNewTask) {
         NewTaskSheet(
             isProcessing = state.isProcessing,
-            onSendText = { text -> viewModel.sendText(text) },
+            onSendText = { text ->
+                viewModel.sendText(text)
+                showNewTask = false
+            },
             onDismiss = { showNewTask = false }
         )
     }
 
+    // Celebrations must be AFTER the sheet so they render on top
     CelebrationManager(
         showCreateCelebration = state.showCreateCelebration,
         showDoneCelebration = state.showDoneCelebration,
