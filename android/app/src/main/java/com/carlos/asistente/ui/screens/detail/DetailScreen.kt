@@ -141,10 +141,6 @@ fun DetailScreen(
                         DetailRow("Descripción", desc)
                     }
 
-                    // Source text
-                    task.source_text?.let { source ->
-                        DetailRow("Texto original", "\"$source\"")
-                    }
 
                     // Created at
                     DetailRow("Creada", task.created_at.substring(0, 16).replace("T", " "))

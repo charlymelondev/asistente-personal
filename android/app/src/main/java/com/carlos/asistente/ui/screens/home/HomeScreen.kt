@@ -304,80 +304,29 @@ private fun SummaryStatsRow(
     inboxCount: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        SummaryCard(
-            label = "Hoy",
-            count = todayCount,
-            icon = Icons.Default.CheckCircle,
-            tint = SuccessGreen,
-            modifier = Modifier.weight(1f)
-        )
-SummaryCard(
-            label = "Vencidas",
-            count = overdueCount,
-            icon = Icons.Default.Warning,
-            tint = PriorityUrgent,
-            modifier = Modifier.weight(1f)
-        )
-        SummaryCard(
-            label = "Semana",
-            count = weekCount,
-            icon = Icons.Default.DateRange,
-            tint = NavyMid,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun SummaryCard(
-    label: String,
-    count: Int,
-    icon: ImageVector,
-    tint: Color,
-    modifier: Modifier = Modifier
-) {
+    val totalPending = todayCount + overdueCount + weekCount
     Card(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(tint.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = tint,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.headlineSmall,
+                text = totalPending.toString(),
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = NavyDeep
             )
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 10.sp
+                text = "Pendientes",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

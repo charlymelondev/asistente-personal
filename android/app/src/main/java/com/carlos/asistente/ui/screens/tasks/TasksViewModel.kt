@@ -15,7 +15,8 @@ data class TasksUiState(
     val tasks: List<TaskDto> = emptyList(),
     val isLoading: Boolean = false,
     val selectedStatus: String = "pending",
-    val selectedCategory: String? = null
+    val selectedCategory: String? = null,
+    val showDoneCelebration: Boolean = false
 )
 
 class TasksViewModel : ViewModel() {
@@ -57,8 +58,15 @@ class TasksViewModel : ViewModel() {
 
     fun markDone(taskId: String) {
         viewModelScope.launch {
-            if (repo.markDone(taskId)) refresh()
+            if (repo.markDone(taskId)) {
+                _uiState.update { it.copy(showDoneCelebration = true) }
+                refresh()
+            }
         }
+    }
+
+    fun dismissDoneCelebration() {
+        _uiState.update { it.copy(showDoneCelebration = false) }
     }
 
     fun deleteTask(taskId: String) {

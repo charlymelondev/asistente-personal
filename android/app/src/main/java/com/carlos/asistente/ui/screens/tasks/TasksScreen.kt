@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlos.asistente.ui.components.AnimatedAvatar
 import com.carlos.asistente.ui.components.AvatarState
+import com.carlos.asistente.ui.components.CelebrationOverlay
 import com.carlos.asistente.ui.components.TaskCard
 import com.carlos.asistente.ui.theme.NavyDeep
 
@@ -145,6 +146,14 @@ fun TasksScreen(
                 }
             }
         }
+    }
+
+    if (state.showDoneCelebration) {
+        CelebrationOverlay(
+            stickerAsset = "sticker_done.png",
+            message = "¡Bien hecho Papí!",
+            onDismiss = { viewModel.dismissDoneCelebration() }
+        )
     }
 }
 
