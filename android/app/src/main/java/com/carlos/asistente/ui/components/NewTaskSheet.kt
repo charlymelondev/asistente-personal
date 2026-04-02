@@ -42,8 +42,16 @@ fun NewTaskSheet(
     var text by remember { mutableStateOf("") }
     var isListening by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    // SpeechRecognizer needs Activity context, not application context
+    val activityContext = remember(context) {
+        var ctx = context
+        while (ctx is android.content.ContextWrapper && ctx !is android.app.Activity) {
+            ctx = ctx.baseContext
+        }
+        ctx
+    }
 
-    val speechHelper = remember { SpeechRecognizerHelper(context) }
+    val speechHelper = remember { SpeechRecognizerHelper(activityContext) }
 
     DisposableEffect(Unit) {
         onDispose { speechHelper.destroy() }
