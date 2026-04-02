@@ -28,10 +28,17 @@ class AgendaViewModel : ViewModel() {
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            val tasks = repo.getTasksWeek()
-            val grouped = tasks.groupBy { it.due_date ?: "Sin fecha" }
+            val tasks = repo.getAllTasks(status = "pending")
+            // Group by date (extract YYYY-MM-DD from ISO timestamp)
+            val grouped = tasks.groupBy { task ->
+                task.due_date?.take(10) ?: "Sin fecha"
+            }
             _uiState.update { it.copy(weekTasks = grouped, isLoading = false) }
         }
+    }
+
+    fun loadDay(dateStr: String) {
+        // Tasks are already loaded and grouped — no extra API call needed
     }
 
     fun markDone(taskId: String) {

@@ -3,6 +3,7 @@ package com.carlos.asistente.ui.components
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -57,9 +58,12 @@ fun NewTaskSheet(
                 onError = { error ->
                     Log.w("NewTaskSheet", "Speech error: $error")
                     isListening = false
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 },
                 onListening = { listening -> isListening = listening }
             )
+        } else {
+            Toast.makeText(context, "Necesita permiso de micrófono para hablar", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -74,6 +78,7 @@ fun NewTaskSheet(
             onError = { error ->
                 Log.w("NewTaskSheet", "Speech error: $error")
                 isListening = false
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
             },
             onListening = { listening ->
                 isListening = listening

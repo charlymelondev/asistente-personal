@@ -34,8 +34,13 @@ import com.carlos.asistente.ui.components.AvatarState
 import com.carlos.asistente.ui.components.TaskCard
 import com.carlos.asistente.ui.theme.CoralAccent
 import com.carlos.asistente.ui.theme.NavyDeep
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,13 +52,8 @@ fun AgendaScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val today = LocalDate.now()
 
-    // Start selected day on today
     var selectedDay by remember { mutableStateOf(today) }
-
-    // Build the 7-day window starting from today
-    val weekDays = remember(today) {
-        (0..6).map { today.plusDays(it.toLong()) }
-    }
+    var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
 
     // Tasks for the selected day
     val selectedDayTasks = remember(state.weekTasks, selectedDay) {
@@ -87,29 +87,20 @@ fun AgendaScreen(
                 }
             }
 
-            // Weekly calendar row (inside the header box)
+            // Monthly calendar
             item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(NavyDeep)
-                        .padding(horizontal = 12.dp, vertical = 16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        weekDays.forEach { day ->
-                            DayCell(
-                                day = day,
-                                isSelected = day == selectedDay,
-                                isToday = day == today,
-                                hasEvents = state.weekTasks[day.toString()]?.isNotEmpty() == true,
-                                onClick = { selectedDay = day }
-                            )
-                        }
-                    }
-                }
+                MonthCalendar(
+                    currentMonth = currentMonth,
+                    selectedDay = selectedDay,
+                    today = today,
+                    taskDays = state.weekTasks.keys,
+                    onDayClick = { day ->
+                        selectedDay = day
+                        viewModel.loadDay(day.toString())
+                    },
+                    onPrevMonth = { currentMonth = currentMonth.minusMonths(1) },
+                    onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
+                )
             }
 
             // Day title
@@ -214,66 +205,112 @@ fun AgendaScreen(
 }
 
 @Composable
-private fun DayCell(
-    day: LocalDate,
-    isSelected: Boolean,
-    isToday: Boolean,
-    hasEvents: Boolean,
-    onClick: () -> Unit
+private fun MonthCalendar(
+    currentMonth: YearMonth,
+    selectedDay: LocalDate,
+    today: LocalDate,
+    taskDays: Set<String>,
+    onDayClick: (LocalDate) -> Unit,
+    onPrevMonth: () -> Unit,
+    onNextMonth: () -> Unit
 ) {
-    val dayName = day.format(DateTimeFormatter.ofPattern("EEE", Locale("es")))
-        .uppercase()
-        .take(2)
-    val dayNumber = day.dayOfMonth.toString()
+    val monthName = currentMonth.month.getDisplayName(TextStyle.FULL, Locale("es"))
+        .replaceFirstChar { it.uppercase() }
+    val daysInMonth = currentMonth.lengthOfMonth()
+    val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value // 1=Monday
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .background(
-                when {
-                    isSelected -> CoralAccent
-                    else -> Color.Transparent
-                }
-            )
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .background(NavyDeep)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(
-            text = dayName,
-            style = MaterialTheme.typography.labelSmall,
-            color = when {
-                isSelected -> Color.White
-                isToday -> CoralAccent
-                else -> Color.White.copy(alpha = 0.6f)
-            },
-            fontSize = 10.sp,
-            letterSpacing = 0.5.sp
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = dayNumber,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
-            color = if (isSelected) Color.White
-            else if (isToday) CoralAccent
-            else Color.White.copy(alpha = 0.85f),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        // Event dot
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .clip(CircleShape)
-                .background(
-                    when {
-                        isSelected && hasEvents -> Color.White
-                        hasEvents -> CoralAccent
-                        else -> Color.Transparent
-                    }
+        // Month header with arrows
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onPrevMonth) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Anterior", tint = Color.White)
+            }
+            Text(
+                text = "$monthName ${currentMonth.year}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            IconButton(onClick = onNextMonth) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Siguiente", tint = Color.White)
+            }
+        }
+
+        // Day-of-week headers
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            listOf("LU", "MA", "MI", "JU", "VI", "SÁ", "DO").forEach { name ->
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.width(40.dp),
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp
                 )
-        )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Calendar grid
+        val totalCells = firstDayOfWeek - 1 + daysInMonth
+        val rows = (totalCells + 6) / 7
+        for (row in 0 until rows) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                for (col in 0..6) {
+                    val cellIndex = row * 7 + col
+                    val dayNum = cellIndex - (firstDayOfWeek - 1) + 1
+                    if (dayNum in 1..daysInMonth) {
+                        val day = currentMonth.atDay(dayNum)
+                        val isSelected = day == selectedDay
+                        val isToday = day == today
+                        val hasEvents = taskDays.contains(day.toString())
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when {
+                                        isSelected -> CoralAccent
+                                        isToday -> CoralAccent.copy(alpha = 0.2f)
+                                        else -> Color.Transparent
+                                    }
+                                )
+                                .clickable { onDayClick(day) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = dayNum.toString(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) Color.White else Color.White.copy(alpha = 0.85f)
+                                )
+                                if (hasEvents) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(4.dp)
+                                            .clip(CircleShape)
+                                            .background(if (isSelected) Color.White else CoralAccent)
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
     }
 }
 
