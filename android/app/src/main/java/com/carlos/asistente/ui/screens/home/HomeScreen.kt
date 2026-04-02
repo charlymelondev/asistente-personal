@@ -151,46 +151,8 @@ fun HomeScreen(
                     }
                 }
 
-                // === Overdue section ===
-                if (state.overdueTasks.isNotEmpty()) {
-                    item {
-                        SectionHeader(
-                            title = "Vencidas",
-                            count = state.overdueTasks.size,
-                            accentColor = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
-                        )
-                    }
-                    itemsIndexed(state.overdueTasks, key = { _, task -> "overdue-${task.id}" }) { _, task ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn(tween(300)) + slideInVertically(
-                                animationSpec = spring(Spring.DampingRatioMediumBouncy),
-                                initialOffsetY = { it / 2 }
-                            )
-                        ) {
-                            TaskCard(
-                                task = task,
-                                onDone = { viewModel.markDone(task.id) },
-                                onDelete = { viewModel.deleteTask(task.id) },
-                                onClick = { onTaskClick(task.id) },
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
-
-                // === Today section ===
-                item {
-                    SectionHeader(
-                        title = "Hoy",
-                        count = state.todayTasks.size,
-                        accentColor = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
-                    )
-                }
-
-                if (state.todayTasks.isEmpty() && !state.isLoading && state.lastCreatedTasks == null) {
+                // === All pending tasks ===
+                if (state.allPendingTasks.isEmpty() && !state.isLoading && state.lastCreatedTasks == null) {
                     item {
                         EmptyTodayState(
                             avatarState = avatarState,
@@ -199,7 +161,7 @@ fun HomeScreen(
                     }
                 }
 
-                itemsIndexed(state.todayTasks, key = { _, task -> "today-${task.id}" }) { index, task ->
+                itemsIndexed(state.allPendingTasks, key = { _, task -> "pending-${task.id}" }) { index, task ->
                     AnimatedVisibility(
                         visible = true,
                         enter = fadeIn(tween(300, delayMillis = index * 50)) + slideInVertically(

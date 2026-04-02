@@ -15,7 +15,8 @@ data class DetailUiState(
     val task: TaskDto? = null,
     val isLoading: Boolean = false,
     val deleted: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val showDoneCelebration: Boolean = false
 )
 
 class DetailViewModel : ViewModel() {
@@ -38,9 +39,13 @@ class DetailViewModel : ViewModel() {
         viewModelScope.launch {
             val updated = repo.updateTask(id, UpdateTaskRequest(status = "done"))
             if (updated != null) {
-                _uiState.update { it.copy(task = updated) }
+                _uiState.update { it.copy(task = updated, showDoneCelebration = true) }
             }
         }
+    }
+
+    fun dismissDoneCelebration() {
+        _uiState.update { it.copy(showDoneCelebration = false) }
     }
 
     fun deleteTask() {

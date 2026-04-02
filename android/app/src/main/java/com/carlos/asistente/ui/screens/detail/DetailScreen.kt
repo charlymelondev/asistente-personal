@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlos.asistente.data.remote.dto.UpdateTaskRequest
+import com.carlos.asistente.ui.components.CelebrationOverlay
 import com.carlos.asistente.ui.components.PriorityBadge
 import com.carlos.asistente.ui.components.formatDate
 import java.time.Instant
@@ -199,6 +200,14 @@ fun DetailScreen(
                     Text("Cancelar")
                 }
             }
+        )
+    }
+
+    if (state.showDoneCelebration) {
+        CelebrationOverlay(
+            stickerAsset = "sticker_done.png",
+            message = "¡Bien hecho Papí!",
+            onDismiss = { viewModel.dismissDoneCelebration() }
         )
     }
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 data class HomeUiState(
     val isProcessing: Boolean = false,
     val todayTasks: List<TaskDto> = emptyList(),
+    val allPendingTasks: List<TaskDto> = emptyList(),
     val overdueTasks: List<TaskDto> = emptyList(),
     val summary: SummaryResponse? = null,
     val lastCreatedTasks: List<TaskDto>? = null,
@@ -40,11 +41,13 @@ class HomeViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val today = repo.getTasksToday()
+                val allPending = repo.getAllTasks(status = "pending")
                 val overdue = repo.getTasksOverdue()
                 val summary = repo.getSummary()
                 _uiState.update {
                     it.copy(
                         todayTasks = today,
+                        allPendingTasks = allPending,
                         overdueTasks = overdue,
                         summary = summary,
                         isLoading = false
