@@ -20,7 +20,9 @@ For each task return a JSON object with these fields:
 - due_time: "HH:MM" (24h format) or null. Only if a specific time is mentioned ("a las 10", "por la mañana" → "09:00", "por la tarde" → "16:00").
 
 Rules:
-- Extract ALL actionable items, even implicit ones
+- Extract ALL items as tasks, even if they seem vague or incomplete
+- If the input is very short (1-3 words), treat the ENTIRE input as a single task title
+- NEVER return an empty tasks array — always create at least one task from the input
 - If a single sentence mentions multiple tasks, split them
 - "Llamar a X" → category "llamadas"
 - "Pagar X" / "transferencia" / "factura" → category "pagos"
