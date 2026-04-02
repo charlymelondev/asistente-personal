@@ -42,34 +42,35 @@ fun NewTaskSheet(
     var text by remember { mutableStateOf("") }
     var isListening by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    // SpeechRecognizer needs Activity context, not application context
-    val activityContext = remember(context) {
-        var ctx = context
-        while (ctx is android.content.ContextWrapper && ctx !is android.app.Activity) {
-            ctx = ctx.baseContext
-        }
-        ctx
-    }
 
-    val speechHelper = remember { SpeechRecognizerHelper(activityContext) }
+    // Lazy-create SpeechRecognizer only when needed (after permission granted)
+    var speechHelper by remember { mutableStateOf<SpeechRecognizerHelper?>(null) }
 
     DisposableEffect(Unit) {
-        onDispose { speechHelper.destroy() }
+        onDispose { speechHelper?.destroy() }
+    }
+
+    fun doStartListening() {
+        // Create fresh helper each time to avoid stale permission state
+        speechHelper?.destroy()
+        val helper = SpeechRecognizerHelper(context)
+        speechHelper = helper
+        helper.startListening(
+            onResult = { result -> text = result },
+            onError = { error ->
+                Log.w("NewTaskSheet", "Speech error: $error")
+                isListening = false
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            },
+            onListening = { listening -> isListening = listening }
+        )
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            speechHelper.startListening(
-                onResult = { result -> text = result },
-                onError = { error ->
-                    Log.w("NewTaskSheet", "Speech error: $error")
-                    isListening = false
-                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                },
-                onListening = { listening -> isListening = listening }
-            )
+            doStartListening()
         } else {
             Toast.makeText(context, "Necesita permiso de micrófono para hablar", Toast.LENGTH_LONG).show()
         }
@@ -77,21 +78,7 @@ fun NewTaskSheet(
 
     fun startSpeechRecognition() {
         if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            speechHelper.startListening(
-            onResult = { result ->
-                // Partial and final results both update the text field for live feedback;
-                // the user reviews and taps "Crear tarea" themselves.
-                text = result
-            },
-            onError = { error ->
-                Log.w("NewTaskSheet", "Speech error: $error")
-                isListening = false
-                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-            },
-            onListening = { listening ->
-                isListening = listening
-            }
-        )
+            doStartListening()
         } else {
             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
@@ -124,7 +111,7 @@ fun NewTaskSheet(
                 MicButton(
                     isListening = isListening,
                     onStartListening = { startSpeechRecognition() },
-                    onStopListening = { speechHelper.stopListening() }
+                    onStopListening = { speechHelper?.stopListening() }
                 )
             }
 
