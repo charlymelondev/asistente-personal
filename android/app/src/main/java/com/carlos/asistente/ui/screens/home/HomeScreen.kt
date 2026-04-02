@@ -81,9 +81,14 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
+        var userTriggeredRefresh by remember { mutableStateOf(false) }
+        if (!state.isLoading) userTriggeredRefresh = false
         PullToRefreshBox(
-            isRefreshing = state.isLoading,
-            onRefresh = { viewModel.refresh() },
+            isRefreshing = userTriggeredRefresh && state.isLoading,
+            onRefresh = {
+                userTriggeredRefresh = true
+                viewModel.refresh()
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)

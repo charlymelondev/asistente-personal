@@ -1,6 +1,10 @@
 package com.carlos.asistente.ui.components
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -44,8 +48,24 @@ fun NewTaskSheet(
         onDispose { speechHelper.destroy() }
     }
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            speechHelper.startListening(
+                onResult = { result -> text = result },
+                onError = { error ->
+                    Log.w("NewTaskSheet", "Speech error: $error")
+                    isListening = false
+                },
+                onListening = { listening -> isListening = listening }
+            )
+        }
+    }
+
     fun startSpeechRecognition() {
-        speechHelper.startListening(
+        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            speechHelper.startListening(
             onResult = { result ->
                 // Partial and final results both update the text field for live feedback;
                 // the user reviews and taps "Crear tarea" themselves.
@@ -59,6 +79,9 @@ fun NewTaskSheet(
                 isListening = listening
             }
         )
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
     }
 
     ModalBottomSheet(
