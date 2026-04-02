@@ -13,6 +13,7 @@ const requireApiKey = require('./middleware/auth');
 const tasksRouter = require('./routes/tasks');
 const audioRouter = require('./routes/audio');
 const textRouter = require('./routes/text');
+const versionRouter = require('./routes/version');
 const { initScheduler } = require('./services/scheduler');
 
 const app = express();
@@ -31,6 +32,9 @@ app.get('/api/health', async (req, res) => {
     res.status(500).json({ status: 'error', db: false, error: err.message });
   }
 });
+
+// Public routes
+app.use('/api/version', versionRouter);
 
 // Protected routes
 app.use('/api/tasks', requireApiKey, tasksRouter);

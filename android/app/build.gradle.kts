@@ -14,8 +14,8 @@ android {
         applicationId = "com.carlos.asistente"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 110
+        versionName = "1.1.0"
 
         // Backend URL
         buildConfigField("String", "BASE_URL", "\"https://asistente-backend-ui81.onrender.com/\"")

@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import com.carlos.asistente.ui.screens.agenda.AgendaScreen
 import com.carlos.asistente.ui.screens.detail.DetailScreen
 import com.carlos.asistente.ui.screens.home.HomeScreen
+import com.carlos.asistente.ui.components.UpdateChecker
 import com.carlos.asistente.ui.screens.tasks.TasksScreen
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
@@ -37,6 +38,9 @@ fun NavGraph() {
 
     // Hide bottom bar on detail screen
     val showBottomBar = currentRoute in bottomNavItems.map { it.route }
+
+    // Check for app updates on startup
+    UpdateChecker()
 
     Scaffold(
         bottomBar = {

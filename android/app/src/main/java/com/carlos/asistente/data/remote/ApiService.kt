@@ -48,4 +48,7 @@ interface ApiService {
 
     @GET("api/health")
     suspend fun health(): Response<Map<String, Any>>
+
+    @GET("api/version")
+    suspend fun checkVersion(): Response<VersionResponse>
 }
